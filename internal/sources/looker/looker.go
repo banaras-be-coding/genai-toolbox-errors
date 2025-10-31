@@ -132,7 +132,7 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 		s.Client = v4.NewLookerSDK(rtl.NewAuthSession(cfg))
 		resp, err := s.Client.Me("", s.ApiSettings)
 		if err != nil {
-			return nil, fmt.Errorf("incorrect settings: %w", err)
+			return nil, fmt.Errorf("incorrect settings for %q: %w", r.BaseURL, err)
 		}
 		logger.DebugContext(ctx, fmt.Sprintf("logged in as %s %s", *resp.FirstName, *resp.LastName))
 	}

@@ -76,7 +76,7 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 	}
 	cluster, err := gocb.Connect(r.ConnectionString, opts)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("gocb.Connect for %q: %w", r.ConnectionString, err)
 	}
 
 	scope := cluster.Bucket(r.Bucket).Scope(r.Scope)

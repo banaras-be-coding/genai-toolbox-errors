@@ -69,7 +69,7 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 
 	err = pool.Ping(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("unable to connect successfully: %w", err)
+		return nil, fmt.Errorf("unable to connect successfully to database %q on host %q: %w", r.Database, r.Host, err)
 	}
 
 	s := &Source{
