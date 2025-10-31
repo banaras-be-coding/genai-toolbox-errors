@@ -93,11 +93,11 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 	}
 
 	if r.WriteMode == WriteModeProtected && r.UseClientOAuth {
-		return nil, fmt.Errorf("writeMode 'protected' cannot be used with useClientOAuth 'true'")
+		return nil, fmt.Errorf("writeMode %q cannot be used with useClientOAuth %t", r.WriteMode, r.UseClientOAuth)
 	}
 
 	if r.UseClientOAuth && r.ImpersonateServiceAccount != "" {
-		return nil, fmt.Errorf("useClientOAuth cannot be used with impersonateServiceAccount")
+		return nil, fmt.Errorf("useClientOAuth %t cannot be used with impersonateServiceAccount %q", r.UseClientOAuth, r.ImpersonateServiceAccount)
 	}
 
 	var client *bigqueryapi.Client
@@ -109,13 +109,13 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 	if r.UseClientOAuth {
 		clientCreator, err = newBigQueryClientCreator(ctx, tracer, r.Project, r.Location, r.Name)
 		if err != nil {
-			return nil, fmt.Errorf("error constructing client creator: %w", err)
+			return nil, fmt.Errorf("error constructing bigquery client creator for project %q: %w", r.Project, err)
 		}
 	} else {
 		// Initializes a BigQuery Google SQL source
 		client, restService, tokenSource, err = initBigQueryConnection(ctx, tracer, r.Name, r.Project, r.Location, r.ImpersonateServiceAccount)
 		if err != nil {
-			return nil, fmt.Errorf("error creating client from ADC: %w", err)
+			return nil, fmt.Errorf("error creating bigquery client for project %q using ADC: %w", r.Project, err)
 		}
 	}
 

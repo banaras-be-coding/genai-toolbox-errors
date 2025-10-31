@@ -155,7 +155,7 @@ func InitializeConfigs(ctx context.Context, cfg ServerConfig) (
 			defer span.End()
 			s, err := sc.Initialize(childCtx, instrumentation.Tracer)
 			if err != nil {
-				return nil, fmt.Errorf("unable to initialize source %q: %w", name, err)
+				return nil, fmt.Errorf("unable to initialize source of kind %q with name %q: %w", sc.SourceConfigKind(), name, err)
 			}
 			return s, nil
 		}()
@@ -183,7 +183,7 @@ func InitializeConfigs(ctx context.Context, cfg ServerConfig) (
 			defer span.End()
 			a, err := sc.Initialize()
 			if err != nil {
-				return nil, fmt.Errorf("unable to initialize auth service %q: %w", name, err)
+				return nil, fmt.Errorf("unable to initialize auth service of kind %q with name %q: %w", sc.AuthServiceConfigKind(), name, err)
 			}
 			return a, nil
 		}()
@@ -211,7 +211,7 @@ func InitializeConfigs(ctx context.Context, cfg ServerConfig) (
 			defer span.End()
 			t, err := tc.Initialize(sourcesMap)
 			if err != nil {
-				return nil, fmt.Errorf("unable to initialize tool %q: %w", name, err)
+				return nil, fmt.Errorf("unable to initialize tool of kind %q with name %q: %w", tc.ToolConfigKind(), name, err)
 			}
 			return t, nil
 		}()
@@ -250,7 +250,7 @@ func InitializeConfigs(ctx context.Context, cfg ServerConfig) (
 			if err != nil {
 				return tools.Toolset{}, fmt.Errorf("unable to initialize toolset %q: %w", name, err)
 			}
-			return t, err
+			return t, nil
 		}()
 		if err != nil {
 			return nil, nil, nil, nil, err

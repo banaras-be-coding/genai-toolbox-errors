@@ -85,7 +85,7 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 	}
 
 	if err := hc.healthCheck(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dgraph health check for %q: %w", r.DgraphUrl, err)
 	}
 
 	s := &Source{

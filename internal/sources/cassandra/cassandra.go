@@ -128,7 +128,7 @@ func initCassandraSession(ctx context.Context, tracer trace.Tracer, c Config) (*
 	// Create session
 	session, err := cluster.CreateSession()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Cassandra session: %w", err)
+		return nil, fmt.Errorf("failed to create Cassandra session for hosts %v: %w", c.Hosts, err)
 	}
 	return session, nil
 }
