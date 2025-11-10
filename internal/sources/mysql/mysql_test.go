@@ -27,6 +27,7 @@ import (
 	"github.com/googleapis/genai-toolbox/internal/server"
 	"github.com/googleapis/genai-toolbox/internal/sources/mysql"
 	"github.com/googleapis/genai-toolbox/internal/testutils"
+	"github.com/googleapis/genai-toolbox/internal/util"
 )
 
 func TestParseFromYamlCloudSQLMySQL(t *testing.T) {
@@ -225,5 +226,52 @@ func TestFailInitialization(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "invalid queryTimeout") {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// TestTLSIntegration is a basic integration test that requires a local MySQL
+// server running on port 3306.
+func TestTLSIntegration(t *testing.T) {
+	t.Parallel()
+
+	cfg := mysql.Config{
+		Name:     "my-mysql-instance",
+		Kind:     mysql.SourceKind,
+		Host:     "localhost",
+		Port:     "3306",
+		Database: "mysql",
+		User:     "root",
+		Password: "password",
+		QueryParams: map[string]string{
+			"tls": "true",
+		},
+	}
+	ctx := context.Background()
+	ctx = util.WithUserAgent(ctx, "test-agent")
+
+	src, err := cfg.Initialize(ctx, noop.NewTracerProvider().Tracer("test"))
+	if err != nil {
+		// If we can't connect, skip the test.
+		t.Skipf("unable to connect to mysql: %s", err)
+	}
+
+	db := src.(*mysql.Source).MySQLPool()
+	rows, err := db.QueryContext(ctx, "SHOW STATUS LIKE 'Ssl_cipher'")
+	if err != nil {
+		t.Fatalf("unable to query: %s", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		t.Fatalf("expected one row")
+	}
+
+	var varName, value string
+	if err := rows.Scan(&varName, &value); err != nil {
+		t.Fatalf("unable to scan row: %s", err)
+	}
+
+	if value == "" {
+		t.Fatalf("expected non-empty Ssl_cipher")
 	}
 }
